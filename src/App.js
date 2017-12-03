@@ -1,21 +1,68 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import axios from 'axios';
+import SearchForm from './Components/SearchForm';
+import GifList from './Components/GifList';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
+export default class App extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+            gifs: [],
+            loading: true
+        };
+    }
+
+    //  Fetch API https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+//
+// componentDidMount() {
+//     fetch('https://api.giphy.com/v1/gifs/trending?api_key=bpaxS0534mwAPfGF8tkjaIdlvn3OfH1u&limit=25&rating=G')
+//         .then(response => response.json())
+//         .then(responseData => {
+//             this.setState({ gifs: responseData.data });
+//         })
+//         .catch(error => {
+//             console.log('Error fetching and parsing data', error);
+//         });
+// }
+
+    componentDidMount() {
+        this.performSearch();
+    }
+
+    performSearch = (query = 'cats') => {
+        axios.get(`http://api.giphy.com/v1/gifs/search?q=${query}&limit=24&api_key=dc6zaTOxFJmzC`)
+            .then(response => {
+                this.setState({
+                    gifs: response.data.data,
+                    loading: false
+                });
+            })
+            .catch(error => {
+                console.log('Error fetching and parsing data', error);
+            });
+    }
+
+    render() {
+        console.log(this.state.gifs);
+        return (
+            <div>
+                <div className="main-header">
+                    <div className="inner">
+                        <h1 className="main-title">GifSearch</h1>
+                        <SearchForm onSearch={this.performSearch} />
+                    </div>
+                </div>
+                <div className="main-content">
+                    {
+                        (this.state.loading)
+                        ? <p>Loading...</p>
+                            :    <GifList data={this.state.gifs} />
+                    }
+
+                </div>
+            </div>
+        );
+    }
 }
-
-export default App;
